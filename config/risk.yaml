@@ -1,0 +1,30 @@
+# 风控参数 — Phase 5.1 risk_check 风控表（plan.md 第 225 行）
+# 及小资金铁律、全局资金约束
+schema_version: 1
+
+# 初始实盘 / 回测资金（plan.md 第 8 行）
+initial_account: 100000
+
+# Phase 5.1 execution/risk_check 硬校验（plan.md 第 225 行）
+position_limits:
+  # 单股 ≤ 15%
+  single_stock_max_pct: 0.15
+  # 单 ETF ≤ 30%
+  single_etf_max_pct: 0.30
+  # 科技合计 ≤ 80%
+  tech_sector_max_pct: 0.80
+  # 总仓位 ≤ 85%
+  total_position_max_pct: 0.85
+  # 现金 ≥ 15%
+  cash_min_pct: 0.15
+
+# 小资金铁律（plan.md 第 28–32 行）
+max_stock_positions: 5
+# 一手金额 > 12000 元的个股打 etf_only（plan.md 第 31 行）
+one_lot_amount_etf_only_threshold: 12000
+# 目标年换手 ≤ 400%（plan.md 第 30 行）
+target_max_annual_turnover_pct: 400
+
+# TODO: 主线/辅线目标仓位比例（plan.md 第 179 行写 65%/35%，但未纳入 Phase 5 风控表）
+# TODO: 止损比例（plan.md 第 227 行 SOP：个股 -10% / ETF -12%，归属 stop_loss SOP 非 risk_check 表）
+# TODO: 轮动 Top 2-3 板块、辅线 Top 5 等模型层约束（plan.md Phase 3，非本表字段）

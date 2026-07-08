@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chainalpha"
+version = "0.1.0"
+description = "A-share quantitative research system — supply chain alpha"
+readme = "plan.md"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    "qlib",
+    "akshare",
+    "tushare",
+    "pandas",
+    "pyarrow",
+    "statsmodels",
+    "lightgbm",
+    "pytest",
+    "loguru",
+    "python-dotenv",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"

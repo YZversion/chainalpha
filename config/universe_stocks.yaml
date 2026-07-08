@@ -1,0 +1,14 @@
+# 个股池（辅线标的）— plan.md Phase 0 / 项目结构
+# 标的清单留空，由人工填写；禁止预填任何股票代码
+#
+# 目标：8 领域 × 每领域 3–5 只（plan.md 第 80 行）
+schema_version: 1
+
+# --- 字段 schema（单只个股条目）---
+# code:            str    股票代码（如 "600xxx" / "000xxx"）
+# name:            str    股票简称
+# domain:          str    所属领域（与 universe_etf.yaml 领域名对应）
+# one_lot_amount:  float  一手金额（元）= 最新价 × 100
+# etf_only:        bool   一手金额 > 12000 元时设为 true，表示仅用对应 ETF 表达
+
+stocks: []

@@ -1,0 +1,51 @@
+schema_version: 1
+schema_id: theme_rotation_t1_setup_stats
+description: setup 级统计结果字段。
+
+primary_key:
+  - asof_date
+  - setup_id
+
+required_fields:
+  asof_date:
+    type: date
+  setup_id:
+    type: enum
+    allowed:
+      - recent_limit_up_or_double_volume
+      - volume_long_upper_shadow
+      - first_to_second_limit_up
+      - contrary_strength
+  sample_count:
+    type: integer
+  win_rate:
+    type: number
+  avg_win_pct:
+    type: number
+  avg_loss_pct:
+    type: number
+  payoff_ratio:
+    type: number
+  expectancy_pct:
+    type: number
+    description: 扣除佣金、印花税、滑点后的每笔净期望
+  rolling_30_expectancy_pct:
+    type: number_or_null
+  max_drawdown_pct:
+    type: number
+  annual_turnover_pct:
+    type: number
+  friction_cost_pct:
+    type: number
+  disabled:
+    type: boolean
+  disabled_reason:
+    type: enum_or_null
+    allowed:
+      - rolling_30_expectancy_negative
+      - insufficient_data
+      - missing_required_fields
+      - manual_review
+  missing_fields:
+    type: list
+    description: 无法取得的数据字段，必须显式列出

@@ -1,0 +1,27 @@
+# 行业 ETF 池（主线标的）— plan.md Phase 0 / 项目结构
+# 标的清单留空，由人工填写；禁止预填任何 ETF 代码
+#
+# DoD（plan.md 第 86 行）：填完后每只日均成交额 ≥ 2 亿
+schema_version: 1
+
+# --- 字段 schema（单只 ETF 条目）---
+# code:               str    基金代码（如 "159xxx" / "512xxx"）
+# tracking_index:     str    跟踪指数名称
+# avg_daily_turnover: float  日均成交额（元）
+# management_fee:     float  管理费率（年化小数，如 0.005 = 0.5%）
+
+# plan.md 要求 8 领域映射；下列为 Phase 0 已列出的领域示例名，etfs 均为空列表待填
+# TODO: 余下领域名称由人工按 8 领域完整清单补充
+domains:
+  - name: 芯片
+    etfs: []
+  - name: 通信
+    etfs: []
+  - name: 计算机
+    etfs: []
+  - name: 软件
+    etfs: []
+  - name: 机器人/高端装备
+    etfs: []
+  - name: 云计算
+    etfs: []

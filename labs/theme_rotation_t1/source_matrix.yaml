@@ -1,0 +1,178 @@
+schema_version: 1
+lab_id: theme_rotation_t1
+status: akshare_only_source_audit
+
+provider_policy:
+  primary_provider: akshare
+  no_tushare: true
+  no_broker_api: true
+  no_auto_ordering: true
+  token_required: false
+  rule: AkShare 能拿到的字段才进入本 lab；拿不到的字段标 MISSING，不再用 Tushare 补洞。
+
+latest_probe:
+  run_at: "2026-07-08 10:32:36"
+  script: probe_akshare.py
+  report: ../../reports/lab_theme_rotation_t1_data_audit.md
+  raw_dir: ../../data/raw/labs/theme_rotation_t1/akshare_probe/20260708_103236
+  result_counts:
+    ERROR: 21
+    MISSING: 2
+    PARTIAL: 1
+  note: 当前机器到东方财富/新浪/交易所公开端点访问不稳定；仅 unlock_events 的 stock_restricted_release_detail_em 成功返回样例。
+
+audit_status_allowed:
+  - OK
+  - PARTIAL
+  - MISSING
+  - CANDIDATE_NEEDS_LOCAL_PROBE
+
+fields:
+  minute_bars:
+    required_for_full_backtest: true
+    audit_status: PARTIAL
+    primary_candidates:
+      - provider: akshare
+        api: stock_zh_a_hist_min_em
+        source: eastmoney
+        coverage_note: recent_intraday_only; 1min_recent_5_trading_days
+        usable_for: forward_collection_and_recent_smoke_test
+    fallback_candidates:
+      - provider: local_archive
+        api: data/raw/minute
+        source: self_collected_from_now_on
+        coverage_note: available_only_after_collection_starts
+    missing_if: no_historical_minute_vendor_or_local_archive
+
+  limit_prices:
+    required_for_full_backtest: true
+    audit_status: PARTIAL
+    primary_candidates:
+      - provider: akshare
+        api: stock_zt_pool_em
+        source: eastmoney
+        coverage_note: recent_limit_up_pool_only; contains limit-up price for pool members, not full-market daily limits
+      - provider: akshare
+        api: stock_zt_pool_dtgc_em
+        source: eastmoney
+        coverage_note: recent_limit_down_pool_only; contains limit-down pool, not full-market daily limits
+    cross_check_candidates:
+      - provider: derived
+        api: raw_prev_close_plus_board_rules
+        source: internal_calculation
+        coverage_note: cross_check_only; must handle ST, registration-board 20%, BSE 30%, new stocks, and regime changes
+    missing_if: no_verified_full_market_daily_limit_up_down_price_from_akshare_or_conservative_derivation
+
+  historical_st_status:
+    required_for_full_backtest: true
+    audit_status: CANDIDATE_NEEDS_LOCAL_PROBE
+    primary_candidates:
+      - provider: akshare
+        api: stock_info_change_name
+        source: sina
+        coverage_note: single_symbol_historical_previous_names
+      - provider: akshare
+        api: stock_info_sz_change_name
+        source: szse
+        coverage_note: shenzhen_name_change_history
+    not_sufficient:
+      - provider: akshare
+        api: stock_zh_a_st_em
+        reason: current_day_risk_warning_board_only
+    missing_if: no_date_ranged_st_or_risk_warning_history
+
+  delisting_history:
+    required_for_full_backtest: true
+    audit_status: CANDIDATE_NEEDS_LOCAL_PROBE
+    primary_candidates:
+      - provider: akshare
+        api: stock_staq_net_stop
+        source: eastmoney
+        coverage_note: delisted_and_sta_q_net_list; needs merge with historical trading dates
+      - provider: akshare
+        api: stock_zh_a_stop_em
+        source: eastmoney
+        coverage_note: current_market_delisted_board_quote
+    missing_if: historical_tradeable_universe_excludes_delisted_symbols
+
+  unlock_events:
+    required_for_event_filter: true
+    audit_status: PARTIAL
+    primary_candidates:
+      - provider: akshare
+        api: stock_restricted_release_queue_sina
+        source: sina
+        coverage_note: per_symbol_unlock_date_amount_market_value_announcement_date
+    required_columns:
+      - symbol
+      - unlock_date
+      - unlock_amount
+      - unlock_market_value
+      - announcement_date
+    missing_if: announcement_date_missing_or_history_incomplete
+
+  shareholder_reduction:
+    required_for_event_filter: true
+    audit_status: PARTIAL
+    primary_candidates:
+      - provider: akshare
+        api: stock_ggcg_em
+        source: eastmoney
+        coverage_note: shareholder_increase_decrease_records_with_announcement_date
+    limitation: cannot_reliably_determine_announced_but_not_completed_without_pairing_plan_and_completion_announcements
+    conservative_policy: filter_recent_reduction_related_announcements_or_mark_missing
+    missing_if: cannot_pair_reduction_plan_to_completion_as_of_buy_date
+
+  inquiry_or_regulatory_letters:
+    required_for_event_filter: true
+    audit_status: CANDIDATE_NEEDS_LOCAL_PROBE
+    primary_candidates:
+      - provider: akshare
+        api: stock_individual_notice_report
+        source: eastmoney
+        coverage_note: individual_announcements_with_title_type_date_url
+    keyword_candidates:
+      - 问询函
+      - 监管函
+      - 关注函
+      - 警示函
+      - 风险提示
+      - 行政处罚
+    missing_if: announcement_feed_does_not_cover_exchange_letters_reliably
+
+  asof_theme_labels:
+    required_for_theme_correlation_limits: true
+    audit_status: PARTIAL
+    primary_candidates:
+      - provider: akshare
+        api: stock_board_concept_name_em
+        source: eastmoney
+        coverage_note: current_concept_board_list
+      - provider: akshare
+        api: stock_board_concept_cons_em
+        source: eastmoney
+        coverage_note: current_concept_constituents_only
+      - provider: akshare
+        api: stock_board_concept_hist_em
+        source: eastmoney
+        coverage_note: concept_index_history_not_constituent_history
+    fallback_candidates:
+      - provider: local_daily_snapshot
+        api: data/altdata/theme_snapshots
+        source: self_collected_from_now_on
+        coverage_note: as_of_only_after_collection_starts
+    missing_if: no_historical_constituent_snapshot_with_effective_date
+
+  advancers_ratio_intraday:
+    required_for_buy_gate: true
+    audit_status: CANDIDATE_NEEDS_LOCAL_PROBE
+    primary_candidates:
+      - provider: local_snapshot_from_now_on
+        api: data/raw/breadth_intraday
+        source: self_collected
+        coverage_note: must snapshot all tradable A shares before 10:40 and after 14:40
+      - provider: akshare
+        api: stock_zh_a_spot_em
+        source: eastmoney
+        coverage_note: current_realtime_quote; historical_snapshots_unavailable_without_self_collection
+    missing_if: no_intraday_full_market_snapshot_at_decision_time

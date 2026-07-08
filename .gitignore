@@ -1,0 +1,24 @@
+# 数据目录（原始数据、Qlib bin、另类数据）
+data/
+
+# 密钥与环境变量
+.env
+*.token
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# 报告 HTML 导出
+reports/*.html
+
+# 实盘交易记录（含账户信息）
+live_records/

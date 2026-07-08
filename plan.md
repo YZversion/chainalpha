@@ -1,7 +1,10 @@
 # plan.md — A股量化研究系统 v3（10万小资金版）
 
 > 项目代号：`chainalpha`（供应链传导 alpha）
-> 环境：WSL2 Ubuntu 22.04 + conda | Python 3.10（Qlib 主环境）/ 3.11（RD-Agent 独立环境）
+> 环境：**Windows 10/11 原生** + conda | Python 3.10 | Cursor 直接打开本地仓库（如 `D:\projects\chainalpha`）
+> Windows 适配约束：所有文件 IO 显式 `encoding="utf-8"` 且环境设 `PYTHONUTF8=1`（防中文 Windows GBK 乱码）；路径一律 `pathlib`；并行代码必须有 `if __name__ == "__main__"` 保护（Windows spawn 语义）；定时任务用**任务计划程序**而非 cron
+> RD-Agent 说明：其硬性要求 Linux，已降级为**可选实验**（见 Phase 2.3），不影响主线；需要时用临时 WSL 或按小时计费的云 Linux 跑
+> LLM 使用：NLP 抽取一律走 **OpenAI 兼容 API**（国产模型），`base_url`/`model`/`key` 从 `.env` 读取，不使用公司算力资源
 > 资金约束：初始实盘资金 **10万 RMB**，无券商 API/QMT 权限
 >
 > **v3 核心定位变化**：本阶段项目的产出不是收益额，而是
@@ -15,6 +18,8 @@
 > 4. 每个模块必须有对应的 pytest 测试后才算完成
 > 5. 禁止在代码/注释/文档中引用任何非公开信息源
 > 6. 本项目不生成任何自动下单代码；执行环节的产出是**订单清单 + 人工执行 SOP**
+> 7. API key 只存 `.env`（已 gitignore），代码/日志/报告中禁止出现明文 key；LLM 调用必须带缓存与用量统计
+> 8. Windows 适配硬规则：文件 IO 显式 UTF-8、路径用 pathlib、并行入口加 `__main__` 保护、不引入任何仅 Linux 可用的依赖（如 uvloop）
 
 ---
 
@@ -51,7 +56,7 @@ chainalpha/
 │   │   ├── stock_select.py    # 个股精选（辅线）
 │   │   └── portfolio.py       # 整手取整+资金分配
 │   ├── backtest/
-│   ├── nlp/                   # 本地Qwen3公告分析
+│   ├── nlp/                   # LLM API 公告分析（OpenAI 兼容，base_url 可配置）
 │   ├── execution/
 │   │   ├── order_sheet.py     # 生成人工执行订单清单
 │   │   └── tracker.py         # 实盘vs回测偏差追踪
@@ -66,14 +71,16 @@ chainalpha/
 
 ## Phase 0：项目初始化 — ⏱ 1-2 天
 
+- [ ] **Go/No-Go 探针（本 Phase 第一件事）**：干净 conda 环境（py3.10）`pip install pyqlib akshare` 且 `python -c "import qlib, akshare"` 成功——失败则停下解决环境问题，不带病推进
 - [ ] git 仓库 + `.gitignore`（排除 `data/`、token、`.env`、实盘记录含账户信息的文件）
 - [ ] 目录结构 + `pyproject.toml`（qlib, akshare, tushare, pandas, pyarrow, statsmodels, lightgbm, pytest, loguru）
 - [ ] `AGENTS.md`：上方 6 条全局约束 + 代码规范
-- [ ] conda 环境 `chainalpha`（py3.10），`import qlib` 成功
+- [ ] 探针通过的环境命名为 `chainalpha`，导出 `environment.yml` 存档
 - [ ] `config/universe_etf.yaml`：8 领域映射行业 ETF（芯片、通信、计算机、软件、机器人/高端装备、云计算等各选流动性最好的 1-2 只，记录代码、跟踪指数、日均成交额、管理费）
 - [ ] `config/universe_stocks.yaml`：8 领域 × 每领域 3-5 只，**标注每只"一手金额"字段**，>12000元的打 `etf_only` 标记
 - [ ] `config/costs.yaml`：股票=佣金万2.5且最低5元+卖出印花税0.05%+滑点0.15%；**ETF=佣金万2.5且最低5元+免印花税+滑点0.05%**；T+1；涨跌停
 - [ ] `config/risk.yaml`：见 Phase 5 风控表
+- [ ] `.env.example` 模板：`LLM_BASE_URL / LLM_MODEL / LLM_API_KEY / TUSHARE_TOKEN`（真实 `.env` 已在 gitignore）
 - [ ] pre-commit：ruff
 
 **DoD**：pytest 空跑通过；两个 universe yaml 通过 schema 校验；ETF 池每只日均成交额 ≥ 2亿（保证滑点假设成立）。
@@ -95,7 +102,7 @@ chainalpha/
 - [ ] `ingest/tushare_fin.py`：财报 + 公告日期字段
 - [ ] `ingest/to_qlib.py`：parquet → dump_bin（个股、ETF、指数三个 instruments 集合）
 - [ ] adata 备份源 fallback
-- [ ] 增量更新 `ingest/update_daily.py`（cron 16:30，幂等）
+- [ ] 增量更新 `ingest/update_daily.py`（**任务计划程序** 每交易日 16:30 触发，幂等；提供 `scripts/register_task.ps1` 一键注册）
 - [ ] 数据质量检查 `ingest/validate.py`：缺失日、异常跳变、ETF 净值与价格偏离（折溢价>1%告警）
 - [ ] `tests/test_ingest.py`
 
@@ -129,12 +136,12 @@ chainalpha/
 - [ ] `reports/phase2_supplychain_factors.md`；全部无效则如实记录并砍方向，不硬凑
 - [ ] `tests/test_supply_chain.py`（合成数据验证检出能力）
 
-### 2.3 RD-Agent 并行实验（后台，不占主线）
+### 2.3 RD-Agent 实验（**可选**，需 Linux：临时 WSL 或云 Linux，不阻塞主线，可整体跳过）
 
-- [ ] 独立环境装 RD-Agent，后端接本地 Qwen3（OpenAI 兼容端点），不稳则切 API
-- [ ] `rdagent fin_factor`，MAX_LOOP=10
-- [ ] 人工审查（臆造字段/前视偏差）→ 通过者统一评价复测
-- [ ] `reports/phase2_rdagent_review.md`
+- [ ] （可选）临时环境装 RD-Agent，后端接国产 LLM API；先跑 3 轮小循环记录 token 消耗，外推成本后再放开 MAX_LOOP
+- [ ] （可选）`rdagent fin_factor`，MAX_LOOP=10
+- [ ] （可选）人工审查（臆造字段/前视偏差）→ 通过者统一评价复测
+- [ ] （可选）`reports/phase2_rdagent_review.md`
 
 **DoD**：≥ 8 个准入因子；≥ 2 条传导边在**行业指数层面**通过检验并产出正 IC 因子；报告齐全。
 
@@ -161,7 +168,8 @@ chainalpha/
 ### 3.3 NLP 情绪模块（第5-7周）
 
 - [ ] `nlp/fetch_announcements.py`：巨潮/东财公告（universe个股，近3年）
-- [ ] `nlp/qwen_extract.py`：本地 Qwen3 结构化抽取 `{事件类型, 方向, 强度分, 关键数字}`，JSON schema 约束
+- [ ] `nlp/llm_extract.py`：LLM API 结构化抽取 `{事件类型, 方向, 强度分, 关键数字}`，JSON schema 约束；客户端 OpenAI 兼容、`base_url`/`model` 从 config 读取（将来切本地部署零改动），带重试/限速/断点续跑（结果落盘缓存，按公告ID幂等）
+- [ ] **成本探针（先于全量运行）**：抽 100 篇公告跑一遍，记录 token 消耗与单价，外推全量成本写入 `reports/phase3_nlp_cost.md`；全量预算超预期则先降范围（近1年/减少事件类型）
 - [ ] 抽检：50条人工标注 vs 模型，一致率 ≥ 85%
 - [ ] 事件研究 → 有效事件类型 → 情绪因子入库（主要服务辅线个股，也可做板块级情绪聚合服务主线）
 - [ ] `tests/test_nlp.py`

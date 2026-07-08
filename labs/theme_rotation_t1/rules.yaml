@@ -1,0 +1,145 @@
+schema_version: 1
+lab_id: theme_rotation_t1
+status: draft_unvalidated
+
+references:
+  account_config: ../../config/costs.yaml
+  risk_config: ../../config/risk.yaml
+  strategy_spec: strategy_spec.md
+
+scope:
+  domain: emotion_driven_theme_rotation
+  disabled_environments:
+    - one_way_bear_market
+    - extreme_low_liquidity_market
+    - market_microstructure_regime_change
+  no_auto_ordering: true
+  investment_advice: false
+
+account:
+  initial_account: 100000
+  lot_size: 100
+  total_position_max_pct: 0.85
+  cash_min_pct: 0.15
+
+market_state:
+  buy_advancers_ratio_min: 0.60
+  breadth_scope: all_tradable_a_shares
+  decision_times:
+    morning_latest: "10:40"
+    afternoon_earliest: "14:40"
+  missing_intraday_breadth_policy: mark_missing_no_trade
+
+position_sizing:
+  slices_min: 5
+  slices_max: 10
+  tolerated_account_drawdown_pct: "[MISSING]"
+  overnight_gap_risk_pct:
+    small_cap: 0.20
+    default: "[MISSING]"
+  formula: account_equity * tolerated_account_drawdown_pct / overnight_gap_risk_pct
+  one_lot_exceeds_risk_cap_policy: skip_trade
+  first_day_after_cooldown_position_fraction: 0.3333333333
+
+correlation_limits:
+  max_positions_per_setup: 3
+  max_positions_per_theme: 2
+
+cooldown:
+  losing_days_reduce_half: 2
+  losing_days_clear_all: 3
+  clear_all_cooldown_trading_days: 3
+  resume_requires_consecutive_breadth_days: 2
+
+event_risk_filter:
+  unlock_within_days: 30
+  exclude_announced_unfinished_share_reduction: true
+  inquiry_or_regulatory_letter_within_days: 30
+  exclude_st_or_risk_warning: true
+  min_listing_age_days: 365
+  missing_field_policy: exclude_or_mark_missing
+
+setup_common:
+  lookback_trading_days: 20
+  limit_price_required: true
+  adjusted_price_limit_detection_policy: mark_missing
+
+setups:
+  recent_limit_up_or_double_volume:
+    enabled: true
+    setup_id: recent_limit_up_or_double_volume
+    has_limit_up_lookback_days: 20
+    volume_multiple_min: 2.0
+    volume_baseline: mean_previous_20_sessions_excluding_signal_day
+
+  volume_long_upper_shadow:
+    enabled: true
+    setup_id: volume_long_upper_shadow
+    volume_multiple_min: 1.5
+    volume_baseline: mean_previous_20_sessions_excluding_signal_day
+    upper_shadow_pct_min: 0.05
+    upper_shadow_to_range_min: 0.50
+    zero_range_policy: skip
+
+  first_to_second_limit_up:
+    enabled: true
+    setup_id: first_to_second_limit_up
+    previous_day_limit_up_required: true
+    previous_20_days_limit_up_count_max: 0
+    free_float_market_cap_percentile_max: 0.30
+    buy_day_price_above_previous_close_required: true
+    limit_up_without_queue_data_policy: not_fillable
+
+  contrary_strength:
+    enabled: true
+    setup_id: contrary_strength
+    previous_day_advancers_ratio_max: 0.40
+    previous_day_stock_return_min: 0.03
+    previous_day_close_above_open_required: true
+    volume_multiple_min: 1.5
+    buy_day_still_requires_market_breadth: true
+
+entry:
+  allowed_windows:
+    - before_or_at_10_40
+    - after_or_at_14_40
+  required_trade_log_fields:
+    - setup_id
+    - theme_id
+    - support_price
+    - stop_loss_price
+  support_and_stop_can_move_down: false
+
+exit:
+  stop_loss:
+    trigger: intraday_low_lte_locked_stop_loss
+    execution: next_trading_day_open
+    limit_down_unfillable_policy: retry_next_open_until_filled
+
+  take_profit:
+    first_take_profit_fraction: 0.5
+    first_take_profit_r_multiple: 1.0
+    trailing_stop_reference: previous_day_low
+    trailing_stop_can_move_down: false
+
+  intraday_exit_signals:
+    bar_frequency: 5min
+    vwap_failed_break_count: 2
+    volume_ratio_stagnation_min: 10.0
+    stagnation_lookback_bars: 3
+    stagnation_return_max: 0.005
+    lower_high_bars: 3
+
+validation:
+  min_trades_per_setup_for_normal_size: 30
+  insufficient_sample_position_policy: one_lot_only
+  setup_disable_rolling_trades: 30
+  setup_disable_expectancy_threshold: 0.0
+  system_disable_rolling_trades: 60
+  system_disable_expectancy_threshold: 0.0
+  max_drawdown_live_to_backtest_multiple_stop: 1.5
+
+rule_change_control:
+  only_after_market_close: true
+  max_revisions_per_month: 1
+  backtest_evidence_required: true

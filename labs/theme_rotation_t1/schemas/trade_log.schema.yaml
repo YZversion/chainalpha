@@ -1,0 +1,90 @@
+schema_version: 1
+schema_id: theme_rotation_t1_trade_log
+description: 每笔交易建档字段。用于研究归档，不包含券商账号或 API key。
+
+primary_key:
+  - trade_id
+
+required_fields:
+  trade_id:
+    type: string
+    description: 唯一交易编号
+  symbol:
+    type: string
+    description: 股票代码
+  name:
+    type: string
+    description: 股票名称
+  setup_id:
+    type: enum
+    allowed:
+      - recent_limit_up_or_double_volume
+      - volume_long_upper_shadow
+      - first_to_second_limit_up
+      - contrary_strength
+  theme_id:
+    type: string
+    description: 买入时可见题材标签，缺失则为 [MISSING]
+  signal_date:
+    type: date
+    description: setup 生成日期
+  entry_date:
+    type: date
+    description: 买入成交日期
+  entry_time:
+    type: time
+    description: 买入成交时间
+  entry_price:
+    type: number
+  shares:
+    type: integer
+    multiple_of: 100
+  support_price:
+    type: number
+    description: 买入时锁死的支撑位
+  stop_loss_price:
+    type: number
+    description: 买入时锁死的止损位
+  first_take_profit_price:
+    type: number
+  position_cash_cap:
+    type: number
+  advancers_ratio_at_entry:
+    type: number
+  event_filter_passed:
+    type: boolean
+  exit_date:
+    type: date_or_null
+  exit_time:
+    type: time_or_null
+  exit_price:
+    type: number_or_null
+  exit_reason:
+    type: enum_or_null
+    allowed:
+      - stop_loss_next_open
+      - first_take_profit_half
+      - trailing_stop
+      - vwap_failed_break
+      - volume_ratio_stagnation
+      - lower_highs
+      - setup_disabled
+      - system_disabled
+      - manual_violation
+  gross_pnl:
+    type: number_or_null
+  net_pnl:
+    type: number_or_null
+  net_pnl_pct:
+    type: number_or_null
+  commission:
+    type: number_or_null
+  stamp_tax:
+    type: number_or_null
+  slippage:
+    type: number_or_null
+  limit_unfilled_flag:
+    type: boolean
+  notes:
+    type: string
+    description: 只记录公开信息与执行备注，不记录账户敏感信息

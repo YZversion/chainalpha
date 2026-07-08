@@ -1,0 +1,33 @@
+# 交易成本模型 — 参数取自 plan.md Phase 0（第 81 行）及小资金铁律
+schema_version: 1
+
+# 回测初始资金（plan.md 第 8 行 / AGENTS.md 第 3 条）
+initial_account: 100000
+
+# 整手约束（plan.md 小资金铁律：一手 = 100 股）
+lot_size: 100
+
+stock:
+  # 佣金万 2.5
+  commission_rate: 0.00025
+  # 最低 5 元佣金
+  commission_min: 5
+  # 卖出印花税 0.05%（仅卖出侧收取）
+  stamp_tax_rate: 0.0005
+  # 滑点 0.15%
+  slippage_rate: 0.0015
+
+etf:
+  commission_rate: 0.00025
+  commission_min: 5
+  # ETF 免印花税
+  stamp_tax_rate: 0
+  # 滑点 0.05%
+  slippage_rate: 0.0005
+
+trading_rules:
+  # T+1
+  t_plus: 1
+  # 涨跌停约束（启用；具体涨跌幅比例 TODO — plan.md 未给出数值）
+  limit_up_down_enabled: true
+  # TODO: limit_up_pct / limit_down_pct — plan.md 仅提及涨跌停，未指定比例
