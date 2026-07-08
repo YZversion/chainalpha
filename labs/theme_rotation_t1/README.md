@@ -6,7 +6,9 @@
 
 ## 当前状态
 
-- 状态：规则冻结草案，尚未回测
+- 状态：规则冻结草案；规则引擎已实现并通过合成数据 pytest（91 项），尚未回测
+- 数据审计：AkShare probe 已跑，本机到东财/新浪端点大面积超时，结论 NO-GO，
+  见 `reports/lab_theme_rotation_t1_data_audit.md`，需换稳定网络复测
 - 账户假设：沿用主项目 `account=100000`
 - 成本假设：沿用 `config/costs.yaml` 的股票成本模型
 - 交易约束：T+1、整手 100 股、涨跌停无法成交
@@ -25,6 +27,15 @@
 | `backtest_protocol.md` | 回测、样本切分、撮合、统计验证协议 |
 | `schemas/trade_log.schema.yaml` | 每笔交易归档字段 |
 | `schemas/setup_stats.schema.yaml` | setup 级统计字段 |
+| `engine/` | 规则引擎（成本、setup、过滤、仓位、冷却、执行约束） |
+| `tests/` | 规则引擎合成数据单测（不依赖真实行情） |
+| `probe_akshare.py` | AkShare 字段可得性审计脚本 |
+
+运行测试（依赖临时目录 `C:\tmp\chainalpha_akshare_pkgs` 中的 pytest/PyYAML）：
+
+```
+PYTHONPATH=C:/tmp/chainalpha_akshare_pkgs python -m pytest labs/theme_rotation_t1/tests -q
+```
 
 ## 使用顺序
 

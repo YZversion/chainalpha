@@ -10,11 +10,11 @@ import socket
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable
-
+from typing import Any
 
 WORKSPACE = Path(__file__).resolve().parents[2]
 TMP_AKSHARE_PATH = Path(r"C:\tmp\chainalpha_akshare_pkgs")
