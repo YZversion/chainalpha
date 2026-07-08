@@ -1,0 +1,35 @@
+{
+  "run_date": "2026-07-08",
+  "ingest": {
+    "symbols_requested": 5,
+    "symbols_loaded": 0,
+    "symbols_failed": [
+      "000001",
+      "600519",
+      "300750",
+      "688981",
+      "837006"
+    ],
+    "rows_total": 0,
+    "source": "akshare:stock_zh_a_hist",
+    "cache_dir": "data\\raw\\labs\\theme_rotation_t1\\daily_csv"
+  },
+  "results": [
+    {
+      "split": "train",
+      "trading_days": 0,
+      "setup_signal_counts": {},
+      "entries_blocked_breadth": 0,
+      "trades": 0,
+      "final_equity": 100000.0
+    },
+    {
+      "split": "validation",
+      "trading_days": 0,
+      "setup_signal_counts": {},
+      "entries_blocked_breadth": 0,
+      "trades": 0,
+      "final_equity": 100000.0
+    }
+  ]
+}

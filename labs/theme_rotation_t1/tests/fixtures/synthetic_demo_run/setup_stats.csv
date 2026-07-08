@@ -1,0 +1,13 @@
+asof_date,setup_id,sample_count,win_rate,avg_win_pct,avg_loss_pct,payoff_ratio,expectancy_pct,rolling_30_expectancy_pct,max_drawdown_pct,annual_turnover_pct,friction_cost_pct,disabled,disabled_reason,missing_fields
+2020-01-15,recent_limit_up_or_double_volume,8,0.375,2.10,-1.80,1.17,-0.45,-0.20,3.20,180.0,0.35,false,,"[MISSING]"
+2020-01-31,recent_limit_up_or_double_volume,12,0.333,2.00,-1.85,1.08,-0.62,-0.35,4.10,220.0,0.42,false,,"[MISSING]"
+2020-02-14,recent_limit_up_or_double_volume,15,0.267,1.90,-1.80,1.06,-0.88,-0.55,5.00,250.0,0.48,true,rolling_30_expectancy_negative,"[MISSING]"
+2020-01-15,volume_long_upper_shadow,3,0.333,1.50,-2.10,0.71,-0.90,-1.20,2.50,80.0,0.22,false,,"intraday_breadth"
+2020-01-31,volume_long_upper_shadow,4,0.250,1.40,-2.00,0.70,-1.10,-1.35,3.00,90.0,0.25,false,,"intraday_breadth"
+2020-02-14,volume_long_upper_shadow,5,0.200,1.30,-2.00,0.65,-1.36,-1.50,3.50,100.0,0.28,false,,"intraday_breadth"
+2020-01-15,first_to_second_limit_up,2,0.000,0.00,-0.50,0.00,-0.50,-0.50,0.80,40.0,0.10,false,insufficient_data,"[MISSING]"
+2020-01-31,first_to_second_limit_up,3,0.000,0.00,-0.50,0.00,-0.50,-0.50,1.00,50.0,0.12,false,insufficient_data,"[MISSING]"
+2020-02-14,first_to_second_limit_up,4,0.000,0.00,-0.50,0.00,-0.50,-0.50,1.20,60.0,0.14,false,insufficient_data,"[MISSING]"
+2020-01-15,contrary_strength,6,0.500,2.40,-1.90,1.26,0.25,0.40,2.80,150.0,0.30,false,,"[MISSING]"
+2020-01-31,contrary_strength,9,0.444,2.20,-1.90,1.16,0.05,0.10,3.40,170.0,0.33,false,,"[MISSING]"
+2020-02-14,contrary_strength,11,0.364,2.00,-1.90,1.05,-0.35,-0.15,4.20,190.0,0.36,false,,"[MISSING]"

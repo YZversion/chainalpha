@@ -15,11 +15,13 @@ dependencies = [
     "pandas",
     "pyarrow",
     "statsmodels",
+    "scipy",
     "lightgbm",
     "pytest",
     "loguru",
     "python-dotenv",
     "pyyaml",
+    "tqdm",
 ]
 
 [project.optional-dependencies]

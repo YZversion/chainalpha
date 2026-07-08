@@ -9,11 +9,11 @@
 - 主数据源：AkShare
 - AkShare 版本：`1.18.64`
 - Python：`3.11.9`
-- Probe 时间：`2026-07-08 10:32:36`
-- 原始样例目录：`data\raw\labs\theme_rotation_t1\akshare_probe\20260708_103236`
+- Probe 时间：`2026-07-08 11:29:11`
+- 原始样例目录：`data\raw\labs\theme_rotation_t1\akshare_probe\20260708_112911`
 - 禁用：Tushare、券商 API、非公开数据、手工事后补标签
 - 输出原则：拿不到或无法证明 as-of 的字段标 `[MISSING]`
-- 本次环境备注：多数端点返回 `ReadTimeout`、`TimeoutExpired` 或连接重置，说明当前机器到东方财富/新浪/交易所公开端点访问不稳定；这些错误不能被解读为 AkShare 永久不提供对应字段，需要在稳定网络下复测。
+- 复测记录：2026-07-08 11:29 第二次全量 probe，结论与首次一致；错误类型为 ReadTimeout / ConnectionReset / SSLError，属网络不稳定，**不能**解读为字段永久不存在
 
 ## 2. 结论摘要
 
@@ -39,13 +39,13 @@
 
 | 字段 | 接口 | 状态 | 行数 | 列数 | 样例文件 | 错误 |
 | --- | --- | --- | --- | --- | --- | --- |
-| listing_date | stock_info_a_code_name | ERROR | 0 | 0 |  | ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)) |
+| listing_date | stock_info_a_code_name | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Read timed out. (read timeout=20) |
 | daily_ohlcv | stock_zh_a_hist:000001 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Read timed out. (read timeout=20) |
 | daily_ohlcv | stock_zh_a_hist:600519 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Read timed out. (read timeout=20) |
 | daily_ohlcv | stock_zh_a_hist:300750 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Read timed out. (read timeout=20) |
 | daily_ohlcv | stock_zh_a_hist:688981 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Read timed out. (read timeout=20) |
 | daily_ohlcv | stock_zh_a_hist:837006 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Read timed out. (read timeout=20) |
-| minute_bars | stock_zh_a_hist_min_em:000001:5m | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Read timed out. (read timeout=15) |
+| minute_bars | stock_zh_a_hist_min_em:000001:5m | ERROR | 0 | 0 |  | ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)) |
 | intraday_breadth | stock_zh_a_spot_em | ERROR | 0 | 0 |  | TimeoutExpired after 35s |
 | limit_prices | stock_zt_pool_em | MISSING | 0 | 0 |  | 20260708: ReadTimeout: HTTPSConnectionPool(host='push2ex.eastmoney.com', port=443): Read timed out. (read timeout=20); 20260707: ReadTimeout: HTTPSConnectionPool(host='push2ex.eastmoney.com', port=443): Read timed out. (read timeout=20); 20260706: ReadTimeout: HTTPSConnectionPool(host='push2ex.eastmoney.com', port=443): Read timed out. (read timeout=20) |
 | limit_prices | stock_zt_pool_dtgc_em | MISSING | 0 | 0 |  | 20260708: ReadTimeout: HTTPSConnectionPool(host='push2ex.eastmoney.com', port=443): Read timed out. (read timeout=20); 20260707: ReadTimeout: HTTPSConnectionPool(host='push2ex.eastmoney.com', port=443): Read timed out. (read timeout=20); 20260706: ReadTimeout: HTTPSConnectionPool(host='push2ex.eastmoney.com', port=443): Read timed out. (read timeout=20) |
@@ -55,14 +55,14 @@
 | delisting_history | stock_staq_net_stop | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='5.push2.eastmoney.com', port=443): Read timed out. (read timeout=20) |
 | delisting_history | stock_zh_a_stop_em | ERROR | 0 | 0 |  | TimeoutExpired after 35s |
 | unlock_events | stock_restricted_release_queue_sina:600000 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Read timed out. (read timeout=20) |
-| unlock_events | stock_restricted_release_detail_em | PARTIAL | 311 | 12 | data\raw\labs\theme_rotation_t1\akshare_probe\20260708_103236\unlock_events__stock_restricted_release_detail_em.csv |  |
-| shareholder_reduction | stock_ggcg_em:全部 | ERROR | 0 | 0 |  | ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)) |
+| unlock_events | stock_restricted_release_detail_em | PARTIAL | 311 | 12 | data\raw\labs\theme_rotation_t1\akshare_probe\20260708_112911\unlock_events__stock_restricted_release_detail_em.csv |  |
+| shareholder_reduction | stock_ggcg_em:全部 | ERROR | 0 | 0 |  | TimeoutExpired after 35s |
 | inquiry_or_regulatory_letters | stock_individual_notice_report:000001:全部 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='np-anotice-stock.eastmoney.com', port=443): Read timed out. (read timeout=20) |
 | asof_theme_labels | stock_board_concept_name_em | ERROR | 0 | 0 |  | TimeoutExpired after 35s |
 | asof_theme_labels | stock_board_concept_cons_em:融资融券 | ERROR | 0 | 0 |  | TimeoutExpired after 35s |
 | listing_date | stock_ipo_info:000001 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Read timed out. (read timeout=20) |
 | listing_date | stock_ipo_info:600519 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Read timed out. (read timeout=20) |
-| listing_date | stock_ipo_info:688981 | ERROR | 0 | 0 |  | ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)) |
+| listing_date | stock_ipo_info:688981 | ERROR | 0 | 0 |  | ReadTimeout: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Read timed out. (read timeout=20) |
 
 ## 5. 字段审计记录
 
@@ -73,7 +73,7 @@
 - 字段：``
 - 样例文件：`[MISSING]`
 - 备注：A-share code/name list only; listing date still needs stock_ipo_info per symbol.
-- 错误：`ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None))`
+- 错误：`ReadTimeout: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Read timed out. (read timeout=20)`
 
 ```json
 []
@@ -151,7 +151,7 @@
 - 字段：``
 - 样例文件：`[MISSING]`
 - 备注：Probe requests 30 calendar days; coverage must be inspected before historical backtest.
-- 错误：`ReadTimeout: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Read timed out. (read timeout=15)`
+- 错误：`ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None))`
 
 ```json
 []
@@ -279,7 +279,7 @@
 - 状态：`PARTIAL`
 - 行数：`311`
 - 字段：`序号, 股票代码, 股票简称, 解禁时间, 限售股类型, 解禁数量, 实际解禁数量, 实际解禁市值, 占解禁前流通市值比例, 解禁前一交易日收盘价, 解禁前20日涨跌幅, 解禁后20日涨跌幅`
-- 样例文件：`data\raw\labs\theme_rotation_t1\akshare_probe\20260708_103236\unlock_events__stock_restricted_release_detail_em.csv`
+- 样例文件：`data\raw\labs\theme_rotation_t1\akshare_probe\20260708_112911\unlock_events__stock_restricted_release_detail_em.csv`
 - 备注：Market-wide unlock detail can help candidate filtering but may include post-event performance fields.
 - 错误：无
 
@@ -323,7 +323,7 @@
 - 字段：``
 - 样例文件：`[MISSING]`
 - 备注：Shareholder increase/decrease records; cannot prove announced-but-unfinished reduction without pairing plan/completion announcements.
-- 错误：`ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None))`
+- 错误：`TimeoutExpired after 35s`
 
 ```json
 []
@@ -401,7 +401,7 @@
 - 字段：``
 - 样例文件：`[MISSING]`
 - 备注：Per-symbol IPO info may include listing date; coverage for all symbols must be tested.
-- 错误：`ConnectionError: ('Connection aborted.', ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None))`
+- 错误：`ReadTimeout: HTTPSConnectionPool(host='vip.stock.finance.sina.com.cn', port=443): Read timed out. (read timeout=20)`
 
 ```json
 []
@@ -413,7 +413,6 @@
 
 原因：
 
-- 本次 probe 只有 `stock_restricted_release_detail_em` 成功返回数据，其余大多数接口在当前网络环境下超时或连接重置。
 - 分钟线和盘中上涨家数若只能通过当前/近期快照获得，不能回填历史决策时点。
 - 涨跌停价目前只能通过涨跌停池和规则推导做部分验证，缺少 AkShare 已确认的全市场每日涨跌停价字段。
 - 当前概念成份股不是历史 as-of 成份股，不能直接用于历史题材相关性约束。
